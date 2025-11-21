@@ -35,6 +35,7 @@
                     animation: {
                         'blob': 'blob 7s infinite',
                         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'bounce-slight': 'bounceSlight 2s infinite',
                     },
                     keyframes: {
                         blob: {
@@ -46,6 +47,10 @@
                         fadeInUp: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        bounceSlight: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-3px)' },
                         }
                     }
                 }
@@ -269,6 +274,57 @@
             </div>
         );
 
+        // 6. Scroll Navigator (New Component)
+        const ScrollNavigator = () => {
+            // IDs of the main sections in order
+            const sectionIds = ['home', 'about', 'research', 'publications', 'honors'];
+
+            const handleScroll = (direction) => {
+                const currentScroll = window.scrollY;
+                const viewportHeight = window.innerHeight;
+                
+                // Find current section
+                const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+                
+                let activeIndex = 0;
+                // Determine which section is currently most visible
+                for (let i = 0; i < sections.length; i++) {
+                    const offsetTop = sections[i].offsetTop;
+                    // A simple heuristic: if we are within this section's range
+                    if (currentScroll >= offsetTop - viewportHeight * 0.4) {
+                        activeIndex = i;
+                    }
+                }
+
+                let targetIndex = direction === 'up' ? activeIndex - 1 : activeIndex + 1;
+                
+                // Bounds check
+                if (targetIndex < 0) targetIndex = 0;
+                if (targetIndex >= sections.length) targetIndex = sections.length - 1;
+
+                sections[targetIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+
+            return (
+                <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
+                    <button 
+                        onClick={() => handleScroll('up')} 
+                        className="w-10 h-10 rounded-full bg-white/80 backdrop-blur shadow-lg border border-white/50 text-slate-600 hover:text-teal-600 hover:scale-110 transition-all duration-300 flex items-center justify-center group"
+                        aria-label="Scroll Up"
+                    >
+                        <Icon name="ChevronUp" size={20} className="group-hover:-translate-y-0.5 transition-transform" />
+                    </button>
+                    <button 
+                        onClick={() => handleScroll('down')} 
+                        className="w-10 h-10 rounded-full bg-teal-500/90 backdrop-blur shadow-lg shadow-teal-500/30 border border-teal-400 text-white hover:bg-teal-600 hover:scale-110 transition-all duration-300 flex items-center justify-center animate-bounce-slight group"
+                        aria-label="Scroll Down"
+                    >
+                        <Icon name="ChevronDown" size={20} className="group-hover:translate-y-0.5 transition-transform" />
+                    </button>
+                </div>
+            );
+        };
+
         // --- Main Application ---
 
         const App = () => {
@@ -330,6 +386,10 @@
                     <div className="mesh-bg"></div>
                     <div className="mesh-blob-1"></div>
                     <div className="mesh-blob-2"></div>
+                    
+                    {/* NEW Scroll Navigator */}
+                    {/* {<ScrollNavigator />} */}
+                    <ScrollNavigator />
 
                     {/* Navigation - Floating Pill */}
                     <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4">
@@ -345,7 +405,7 @@
                         </nav>
                     </div>
 
-                    <!-- Increased max-width to max-w-screen-2xl for spacious layout -->
+                    {/* Increased max-width to max-w-screen-2xl for spacious layout */}
                     <main className="pt-32 pb-20 px-4 sm:px-6 lg:px-12 xl:px-24 max-w-screen-2xl mx-auto space-y-32">
                         
                         {/* HERO SECTION */}
@@ -511,8 +571,8 @@
                             </div>
                         </section>
 
-                        {/* HONORS - Light Tone Theme */}
-                        <section>
+                        {/* HONORS - Light Tone Theme - ADDED ID FOR SCROLL */}
+                        <section id="honors">
                             <div className="glass-panel rounded-2xl p-8 md:p-12 bg-white/80 border border-slate-200 relative overflow-hidden shadow-lg">
                                 {/* Decorative light blob */}
                                 <div className="absolute top-0 right-0 w-64 h-64 bg-teal-100 rounded-full blur-3xl opacity-40 -mr-10 -mt-10"></div>
@@ -548,7 +608,7 @@
                     </main>
 
                     <footer className="border-t border-slate-200 bg-slate-50 py-12">
-                        <!-- Increased max-width to max-w-screen-2xl for footer -->
+                        {/* Increased max-width to max-w-screen-2xl for footer */}
                         <div className="max-w-screen-2xl mx-auto px-6 lg:px-12 xl:px-24 flex flex-col md:flex-row justify-between items-center gap-6">
                             <div className="text-center md:text-left">
                                 <h4 className="font-serif font-bold text-slate-900 text-lg">Shuai Yuan, PhD</h4>
